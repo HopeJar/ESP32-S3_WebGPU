@@ -39,3 +39,11 @@
 
 # debug information files
 *.dwo
+
+# Log files
+*.log
+*.log.*
+*.log.gz
+log/
+logs/
+/log/
