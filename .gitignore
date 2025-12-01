@@ -47,3 +47,7 @@
 log/
 logs/
 /log/
+
+# Build directories
+build-*/
+build/
