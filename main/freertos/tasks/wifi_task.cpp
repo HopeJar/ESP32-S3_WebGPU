@@ -6,6 +6,7 @@
 #include "freertos/tasks/wifi_task.hpp"
 #include "drivers/wifi_driver.hpp"
 #include "web/http_server.hpp"
+#include "secrets/Hidden/wifi_secrets.hpp"
 #include "esp_mac.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
@@ -17,10 +18,6 @@ namespace WiFiTask {
 
 namespace {
     const char* TAG = "WiFiTaskOp";
-
-    // Update these with your local WiFi credentials.
-    constexpr char kWiFiSsid[] = "SSIDNAME";
-    constexpr char kWiFiPassword[] = "PASSWORD";
 
     // Network settings (default: DHCP).
     constexpr bool kUseStaticIp = false;
@@ -46,8 +43,8 @@ void WiFiOperation() {
         ESP_LOGI(TAG, "Hostname: %s", hostname);
 
         Drivers::WiFi::Config config{};
-        config.ssid = kWiFiSsid;
-        config.password = kWiFiPassword;
+        config.ssid = WiFiSecrets::kWiFiSsid;
+        config.password = WiFiSecrets::kWiFiPassword;
         config.use_static_ip = kUseStaticIp;
         config.use_custom_dns = kUseCustomDns;
         config.hostname = hostname;

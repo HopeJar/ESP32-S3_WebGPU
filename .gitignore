@@ -59,3 +59,13 @@ env/
 # vscode
 .vscode/
 
+# ESP-IDF config (local)
+sdkconfig
+sdkconfig.*
+!sdkconfig.defaults
+!sdkconfig.defaults.*
+
+# Secrets
+main/secrets/Hidden/*
+!main/secrets/Hidden/.gitkeep
+
