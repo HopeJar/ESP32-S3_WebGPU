@@ -138,6 +138,18 @@ void set_color(uint8_t r, uint8_t g, uint8_t b) {
 #endif
 }
 
+void get_color(uint8_t* r, uint8_t* g, uint8_t* b) {
+    if (r) {
+        *r = last_r;
+    }
+    if (g) {
+        *g = last_g;
+    }
+    if (b) {
+        *b = last_b;
+    }
+}
+
 void toggle() {
     set_state(!current_state);
 }

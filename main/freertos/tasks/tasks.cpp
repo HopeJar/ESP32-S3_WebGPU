@@ -5,79 +5,56 @@
 
 #include "tasks.hpp"
 #include "esp_log.h"
-#include "../../drivers/led_driver.hpp"
-#include "../../drivers/wifi_driver.hpp"
-#include "../../drivers/ethernet_driver.hpp"
-#include <cstdio>
+#include "freertos/tasks/blink_task.hpp"
+#include "freertos/tasks/wifi_task.hpp"
+#include "freertos/tasks/ethernet_task.hpp"
+#include "freertos/tasks/monitor_task.hpp"
 
 static const char* TAG = "Tasks";
 
 namespace Tasks {
 
 void blink_task(void* pvParameters) {
+    (void)pvParameters;
     ESP_LOGI(TAG, "Blink task started");
     ESP_LOGI(TAG, "  Stack size: %lu bytes", (unsigned long)Config::BLINK_TASK_STACK_SIZE);
     ESP_LOGI(TAG, "  Priority: %d", Config::BLINK_TASK_PRIORITY);
 
-    struct {
-        const char* name;
-        uint8_t r;
-        uint8_t g;
-        uint8_t b;
-    } rgb_colors[] = {
-        {"Red", 255, 0, 0},
-        {"Green", 0, 255, 0},
-        {"Blue", 0, 0, 255}
-    };
-    size_t color_idx = 0;
-
     while (true) {
-        ESP_LOGI(TAG, "LEDs set to %s (R=%u G=%u B=%u)", rgb_colors[color_idx].name,
-                 rgb_colors[color_idx].r, rgb_colors[color_idx].g, rgb_colors[color_idx].b);
-        Drivers::LED::set_color(rgb_colors[color_idx].r, rgb_colors[color_idx].g, rgb_colors[color_idx].b);
-
-        color_idx = (color_idx + 1) % (sizeof(rgb_colors) / sizeof(rgb_colors[0]));
-        vTaskDelay(pdMS_TO_TICKS(1000)); // 1 second delay
+        BlinkTask::BlinkOperation();
     }
 }
 
 void wifi_task(void* pvParameters) {
+    (void)pvParameters;
     ESP_LOGI(TAG, "WiFi task started");
     ESP_LOGI(TAG, "  Stack size: %lu bytes", (unsigned long)Config::WIFI_TASK_STACK_SIZE);
     ESP_LOGI(TAG, "  Priority: %d", Config::WIFI_TASK_PRIORITY);
 
-    Drivers::WiFi::initialize();
-
     while (true) {
-        // WiFi driver main loop
-        Drivers::WiFi::process();
-        vTaskDelay(pdMS_TO_TICKS(100));
+        WiFiTask::WiFiOperation();
     }
 }
 
 void ethernet_task(void* pvParameters) {
+    (void)pvParameters;
     ESP_LOGI(TAG, "Ethernet task started");
     ESP_LOGI(TAG, "  Stack size: %lu bytes", (unsigned long)Config::ETH_TASK_STACK_SIZE);
     ESP_LOGI(TAG, "  Priority: %d", Config::ETH_TASK_PRIORITY);
 
-    Drivers::Ethernet::initialize();
-
     while (true) {
-        // Ethernet driver main loop
-        Drivers::Ethernet::process();
-        vTaskDelay(pdMS_TO_TICKS(100));
+        EthernetTask::EthernetOperation();
     }
 }
 
 void monitor_task(void* pvParameters) {
+    (void)pvParameters;
     ESP_LOGI(TAG, "System monitor task started");
     ESP_LOGI(TAG, "  Stack size: %lu bytes", (unsigned long)Config::MONITOR_TASK_STACK_SIZE);
     ESP_LOGI(TAG, "  Priority: %d", Config::MONITOR_TASK_PRIORITY);
 
     while (true) {
-        // Report free heap
-        ESP_LOGI(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
-        vTaskDelay(pdMS_TO_TICKS(5000)); // 5 second interval
+        Monitor::MonitorOperation();
     }
 }
 

@@ -31,6 +31,14 @@ void set_state(bool state);
 void set_color(uint8_t r, uint8_t g, uint8_t b);
 
 /**
+ * @brief Get the last LED color
+ * @param r Output red 0-255
+ * @param g Output green 0-255
+ * @param b Output blue 0-255
+ */
+void get_color(uint8_t* r, uint8_t* g, uint8_t* b);
+
+/**
  * @brief Toggle the LED state
  */
 void toggle();

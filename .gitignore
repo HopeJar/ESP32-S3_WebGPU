@@ -59,5 +59,3 @@ env/
 # vscode
 .vscode/
 
-# sdkconfig files
-sdkconfig.esp32-s3-devkitm-1
