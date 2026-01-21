@@ -23,6 +23,14 @@ bool initialize();
 void set_state(bool state);
 
 /**
+ * @brief Set the LED color (LED strip only; GPIO LED will be on if any channel > 0)
+ * @param r Red 0-255
+ * @param g Green 0-255
+ * @param b Blue 0-255
+ */
+void set_color(uint8_t r, uint8_t g, uint8_t b);
+
+/**
  * @brief Toggle the LED state
  */
 void toggle();

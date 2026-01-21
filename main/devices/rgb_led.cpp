@@ -6,12 +6,13 @@
 #include "rgb_led.hpp"
 #include "esp_log.h"
 #include "led_strip.h"
+#include "board_pins.hpp"
 #include "driver/gpio.h"
 #include "sdkconfig.h"
 #include <cstring>
 
 static const char* TAG = "RGBLED_Device";
-#define RGB_LED_GPIO 6 // Example GPIO, update as needed
+static constexpr gpio_num_t RGB_LED_GPIO = BoardPins::RGB_LED_GPIO;
 
 namespace Devices {
 namespace RGBLED {

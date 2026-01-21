@@ -10,10 +10,6 @@
 #include "../../drivers/ethernet_driver.hpp"
 #include <cstdio>
 
-#include "../../devices/led1.hpp"
-#include "../../devices/led2.hpp"
-#include "../../devices/rgb_led.hpp"
-
 static const char* TAG = "Tasks";
 
 namespace Tasks {
@@ -23,36 +19,24 @@ void blink_task(void* pvParameters) {
     ESP_LOGI(TAG, "  Stack size: %lu bytes", (unsigned long)Config::BLINK_TASK_STACK_SIZE);
     ESP_LOGI(TAG, "  Priority: %d", Config::BLINK_TASK_PRIORITY);
 
-    // Initialize all device LEDs
-    Devices::LED1::initialize();
-    Devices::LED2::initialize();
-    Devices::RGBLED::initialize();
-
-    bool led_state = false;
-    uint8_t rgb_colors[][3] = {
-        {255, 0, 0},   // Red
-        {0, 255, 0},   // Green
-        {0, 0, 255},   // Blue
-        {255, 255, 0}, // Yellow
-        {0, 255, 255}, // Cyan
-        {255, 0, 255}, // Magenta
-        {255, 255, 255} // White
+    struct {
+        const char* name;
+        uint8_t r;
+        uint8_t g;
+        uint8_t b;
+    } rgb_colors[] = {
+        {"Red", 255, 0, 0},
+        {"Green", 0, 255, 0},
+        {"Blue", 0, 0, 255}
     };
-    int color_idx = 0;
+    size_t color_idx = 0;
 
     while (true) {
-        ESP_LOGI(TAG, "Turning LED1 %s", led_state ? "ON" : "OFF");
-        Devices::LED1::set_state(led_state);
-        ESP_LOGI(TAG, "Turning LED2 %s", led_state ? "ON" : "OFF");
-        Devices::LED2::set_state(!led_state);
+        ESP_LOGI(TAG, "LEDs set to %s (R=%u G=%u B=%u)", rgb_colors[color_idx].name,
+                 rgb_colors[color_idx].r, rgb_colors[color_idx].g, rgb_colors[color_idx].b);
+        Drivers::LED::set_color(rgb_colors[color_idx].r, rgb_colors[color_idx].g, rgb_colors[color_idx].b);
 
-        // Change RGB LED color
-        ESP_LOGI(TAG, "Setting RGB LED color: R=%d G=%d B=%d", rgb_colors[color_idx][0], rgb_colors[color_idx][1], rgb_colors[color_idx][2]);
-        Devices::RGBLED::set_color(rgb_colors[color_idx][0], rgb_colors[color_idx][1], rgb_colors[color_idx][2]);
-        Devices::RGBLED::set_state(true);
-
-        led_state = !led_state;
-        color_idx = (color_idx + 1) % (sizeof(rgb_colors)/sizeof(rgb_colors[0]));
+        color_idx = (color_idx + 1) % (sizeof(rgb_colors) / sizeof(rgb_colors[0]));
         vTaskDelay(pdMS_TO_TICKS(1000)); // 1 second delay
     }
 }

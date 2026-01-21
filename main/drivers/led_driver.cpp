@@ -20,6 +20,9 @@ namespace LED {
 namespace {
     bool initialized = false;
     bool current_state = false;
+    uint8_t last_r = 16;
+    uint8_t last_g = 16;
+    uint8_t last_b = 16;
 
 #ifdef CONFIG_BLINK_LED_STRIP
     led_strip_handle_t led_strip = nullptr;
@@ -106,14 +109,32 @@ void set_state(bool state) {
 
 #ifdef CONFIG_BLINK_LED_STRIP
     if (state) {
-        // Set white color at moderate brightness
-        led_strip_set_pixel(led_strip, 0, 16, 16, 16);
+        led_strip_set_pixel(led_strip, 0, last_r, last_g, last_b);
         led_strip_refresh(led_strip);
     } else {
         led_strip_clear(led_strip);
     }
 #elif CONFIG_BLINK_LED_GPIO
     gpio_set_level(BLINK_GPIO, state ? 1 : 0);
+#endif
+}
+
+void set_color(uint8_t r, uint8_t g, uint8_t b) {
+    if (!initialized) {
+        ESP_LOGW(TAG, "LED driver not initialized");
+        return;
+    }
+
+    last_r = r;
+    last_g = g;
+    last_b = b;
+    current_state = (r > 0) || (g > 0) || (b > 0);
+
+#ifdef CONFIG_BLINK_LED_STRIP
+    led_strip_set_pixel(led_strip, 0, r, g, b);
+    led_strip_refresh(led_strip);
+#elif CONFIG_BLINK_LED_GPIO
+    gpio_set_level(BLINK_GPIO, current_state ? 1 : 0);
 #endif
 }
 
