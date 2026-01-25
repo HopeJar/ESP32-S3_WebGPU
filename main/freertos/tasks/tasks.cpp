@@ -5,12 +5,43 @@
 
 #include "tasks.hpp"
 #include "esp_log.h"
+#include "drivers/led_driver.hpp"
 #include "freertos/tasks/blink_task.hpp"
 #include "freertos/tasks/wifi_task.hpp"
 #include "freertos/tasks/ethernet_task.hpp"
 #include "freertos/tasks/monitor_task.hpp"
 
+static const char* MAIN_TAG = "Main";
 static const char* TAG = "Tasks";
+
+extern "C" void app_main(void)
+{
+    ESP_LOGI(MAIN_TAG, "========================================");
+    ESP_LOGI(MAIN_TAG, "ESP32-S3 Application Starting");
+    ESP_LOGI(MAIN_TAG, "========================================");
+
+    // Initialize hardware drivers
+    ESP_LOGI(MAIN_TAG, "Initializing drivers...");
+
+    if (!Drivers::LED::initialize()) {
+        ESP_LOGE(MAIN_TAG, "Failed to initialize LED driver!");
+    }
+
+    ESP_LOGI(MAIN_TAG, "Driver initialization complete");
+
+    // Create all FreeRTOS tasks
+    ESP_LOGI(MAIN_TAG, "Creating tasks...");
+    Tasks::TaskHandles handles = Tasks::create_all_tasks();
+    (void)handles;
+
+    ESP_LOGI(MAIN_TAG, "========================================");
+    ESP_LOGI(MAIN_TAG, "Application initialization complete");
+    ESP_LOGI(MAIN_TAG, "Tasks running - entering scheduler");
+    ESP_LOGI(MAIN_TAG, "========================================");
+
+    // Main task complete - FreeRTOS scheduler takes over
+    // All work now happens in the created tasks
+}
 
 namespace Tasks {
 

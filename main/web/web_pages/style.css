@@ -1,3 +1,29 @@
-body { font-family: Arial, sans-serif; background: #f4f4f4; }
-h1 { color: #333; }
-button { padding: 10px 20px; font-size: 16px; }
+:root {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Verdana, Arial, sans-serif;
+  background: #111;
+  color: #fff;
+  transition: background 0.3s ease;
+}
+
+.wrap {
+  text-align: center;
+}
+
+h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+}
+
+p {
+  margin: 0;
+  opacity: 0.9;
+}

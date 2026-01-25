@@ -69,3 +69,6 @@ sdkconfig.*
 main/secrets/Hidden/*
 !main/secrets/Hidden/.gitkeep
 
+# Local agent notes
+AGENTS.md
+

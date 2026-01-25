@@ -1,5 +1,4 @@
-idf_component_register(SRCS "blink_example_main.cpp"
-                            "drivers/led_driver.cpp"
+idf_component_register(SRCS "drivers/led_driver.cpp"
                             "drivers/wifi_driver.cpp"
                             "drivers/ethernet_driver.cpp"
                             "freertos/tasks/tasks.cpp"
@@ -18,4 +17,5 @@ idf_component_register(SRCS "blink_example_main.cpp"
                             "devices/led2.cpp"
                             "devices/rgb_led.cpp"
                        INCLUDE_DIRS "."
+                       EMBED_TXTFILES "web/web_pages/index.html" "web/web_pages/style.css" "web/web_pages/control.js"
                        REQUIRES esp_wifi esp_netif nvs_flash esp_http_server)
