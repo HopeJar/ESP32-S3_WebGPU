@@ -16,7 +16,7 @@ namespace Tasks {
 // Task configuration constants
 namespace Config {
     // Blink LED Task
-    constexpr uint32_t BLINK_TASK_STACK_SIZE = 2048;  // 2KB stack
+    constexpr uint32_t BLINK_TASK_STACK_SIZE = 4096;  // 4KB stack
     constexpr UBaseType_t BLINK_TASK_PRIORITY = 5;
     constexpr const char* BLINK_TASK_NAME = "BlinkTask";
 
@@ -31,7 +31,7 @@ namespace Config {
     constexpr const char* ETH_TASK_NAME = "EthernetTask";
 
     // System Monitor Task
-    constexpr uint32_t MONITOR_TASK_STACK_SIZE = 2048; // 2KB stack
+    constexpr uint32_t MONITOR_TASK_STACK_SIZE = 4096; // 4KB stack
     constexpr UBaseType_t MONITOR_TASK_PRIORITY = 3;
     constexpr const char* MONITOR_TASK_NAME = "MonitorTask";
 }

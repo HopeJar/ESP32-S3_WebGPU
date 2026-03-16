@@ -4,6 +4,20 @@ The aim of this project is to use all the functionality of the ESP32-S3 in real 
 ## Build and flash (ESP-IDF + WSL)
 PlatformIO is not used. Use ESP-IDF directly.
 
+## HTTPS for WebGPU (recommended)
+WebGPU requires a secure context, so serving the UI over HTTPS avoids the "WebGPU is not supported" error.
+
+### Generate a local self-signed certificate (WSL)
+```bash
+cd /mnt/c/LocalRepo/ESP32-S3_Mastery/main/secrets/Hidden
+openssl req -x509 -newkey rsa:2048 -keyout server_key.pem -out server_cert.pem -days 365 -nodes -subj "/CN=esp32.local"
+```
+
+### What this does
+- The build system auto-embeds `server_cert.pem` and `server_key.pem` if they exist.
+- The HTTP server will start HTTPS on port 443 and serve the WebGPU UI securely.
+- If the files are missing, it falls back to HTTP on port 80.
+
 ### A) Device already attached to WSL
 PowerShell (Admin):
 

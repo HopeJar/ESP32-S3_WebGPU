@@ -5,9 +5,9 @@
 
 #include "freertos/tasks/blink_task.hpp"
 #include "drivers/led_driver.hpp"
-#include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "logging/logger.hpp"
 #include <cstddef>
 #include <cstdint>
 
@@ -28,12 +28,12 @@ namespace {
     };
 
     size_t color_idx = 0;
-    const char* TAG = "BlinkTaskOp";
+    const Logging::ModuleLogger kLog(Logging::Module::BlinkTask);
 } // namespace
 
 void BlinkOperation() {
     const RgbColor& color = kColors[color_idx];
-    ESP_LOGI(TAG, "LEDs set to %s (R=%u G=%u B=%u)", color.name, color.r, color.g, color.b);
+    APP_LOGI(kLog, "LEDs set to %s (R=%u G=%u B=%u)", color.name, color.r, color.g, color.b);
     Drivers::LED::set_color(color.r, color.g, color.b);
 
     color_idx = (color_idx + 1) % (sizeof(kColors) / sizeof(kColors[0]));

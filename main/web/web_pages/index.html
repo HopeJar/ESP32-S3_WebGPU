@@ -1,16 +1,81 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ESP32 Mastery</title>
-  <link rel="stylesheet" href="/style.css">
-</head>
-<body>
-  <main class="wrap">
-    <h1>ESP32 Mastery</h1>
-    <p id="color">LED color: R=0 G=0 B=0</p>
-  </main>
-  <script src="/control.js"></script>
-</body>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ESP32 Mastery · WebGPU Neon</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div>
+          <p class="eyebrow">WebGPU</p>
+          <h1>Neon Contrail Control</h1>
+          <p class="subtitle">Trail color mirrors the ESP32 LED strip</p>
+        </div>
+        <span class="badge">Live</span>
+      </header>
+
+      <section class="scene">
+        <div class="canvas-card">
+          <canvas id="neon-canvas"></canvas>
+          <div class="canvas-glow"></div>
+          <div id="error" class="error hidden"></div>
+        </div>
+
+        <aside class="controls">
+          <div class="controls-header">
+            <div>
+              <h2>Controls</h2>
+              <p>Real-time simulation tuning</p>
+            </div>
+            <button id="reset" class="btn">Reset</button>
+          </div>
+
+          <div class="control-group">
+            <label>Trail (fade)</label>
+            <span id="fade-value" class="value">0.9850</span>
+            <input id="fade" type="range" min="0.97" max="0.9995" step="0.0005" />
+          </div>
+
+          <div class="control-group">
+            <label>Brush size</label>
+            <span id="radius-value" class="value">18 px</span>
+            <input id="radius" type="range" min="2" max="60" step="1" />
+          </div>
+
+          <div class="control-group">
+            <label>Color intensity</label>
+            <span id="intensity-value" class="value">1.20</span>
+            <input id="intensity" type="range" min="0" max="3" step="0.05" />
+          </div>
+
+          <div class="control-group">
+            <label>Swirl strength</label>
+            <span id="swirl-value" class="value">0.90</span>
+            <input id="swirl" type="range" min="0" max="3" step="0.05" />
+          </div>
+
+          <div class="control-group">
+            <label>Glow speed</label>
+            <span id="glow-value" class="value">0.25</span>
+            <input id="glow" type="range" min="0" max="1" step="0.01" />
+          </div>
+
+          <div class="control-group">
+            <label>LED color</label>
+            <div class="color-row">
+              <span id="led-swatch" class="swatch"></span>
+              <span id="color" class="value">R=0 G=0 B=0</span>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <p class="hint">If you see nothing, try Chrome or Edge with WebGPU enabled.</p>
+    </div>
+
+    <script src="/control.js"></script>
+  </body>
 </html>

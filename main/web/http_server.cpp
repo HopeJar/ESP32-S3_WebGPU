@@ -4,21 +4,22 @@
  */
 
 #include "http_server.hpp"
+#include "https_server.hpp"
 #include "drivers/led_driver.hpp"
 #include "esp_err.h"
 #include "esp_http_server.h"
-#include "esp_log.h"
+#include "logging/logger.hpp"
 #include <cstddef>
 #include <cstdio>
-
-static const char* TAG = "HTTP_Server";
 
 namespace Web {
 namespace HTTPServer {
 
 namespace {
+    const Logging::ModuleLogger kLog(Logging::Module::HTTPServer);
     bool running = false;
     httpd_handle_t server = nullptr;
+    bool https_enabled = false;
 
     // Embedded static web assets (linked into the binary by CMake)
     // - index_html_*: main HTML page
@@ -93,43 +94,35 @@ static esp_err_t control_get_handler(httpd_req_t* req) {
     return send_embedded(req, control_js_start, control_js_end, "application/javascript");
 }
 
-bool start() {
-    if (running) {
-        ESP_LOGW(TAG, "HTTP server already running");
-        return true;
-    }
+static esp_err_t favicon_get_handler(httpd_req_t* req) {
+    httpd_resp_set_status(req, "204 No Content");
+    httpd_resp_set_type(req, "image/x-icon");
+    httpd_resp_set_hdr(req, "Cache-Control", "no-store");
+    return httpd_resp_send(req, nullptr, 0);
+}
 
-    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.server_port = 80;
-
-    esp_err_t err = httpd_start(&server, &config);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to start HTTP server: %s", esp_err_to_name(err));
-        return false;
-    }
-
+// Register all URI handlers for the server (main page, CSS, JS, API endpoints)
+static esp_err_t register_handlers(httpd_handle_t handle) {
     httpd_uri_t index_uri = {};
     index_uri.uri = "/";
     index_uri.method = HTTP_GET;
     index_uri.handler = index_get_handler;
     index_uri.user_ctx = nullptr;
 
-    err = httpd_register_uri_handler(server, &index_uri);
+    // Register handler for "/" URL
+    esp_err_t err = httpd_register_uri_handler(handle, &index_uri);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to register index handler: %s", esp_err_to_name(err));
-        httpd_stop(server);
-        server = nullptr;
-        return false;
+        APP_LOGE(kLog, "Failed to register index handler: %s", esp_err_to_name(err));
+        return err;
     }
 
+    // Also register handler for "/index.html" URL (same content as "/")
     httpd_uri_t index_html_uri = index_uri;
     index_html_uri.uri = "/index.html";
-    err = httpd_register_uri_handler(server, &index_html_uri);
+    err = httpd_register_uri_handler(handle, &index_html_uri);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to register index.html handler: %s", esp_err_to_name(err));
-        httpd_stop(server);
-        server = nullptr;
-        return false;
+        APP_LOGE(kLog, "Failed to register index.html handler: %s", esp_err_to_name(err));
+        return err;
     }
 
     httpd_uri_t style_uri = {};
@@ -138,12 +131,12 @@ bool start() {
     style_uri.handler = style_get_handler;
     style_uri.user_ctx = nullptr;
 
-    err = httpd_register_uri_handler(server, &style_uri);
+    //Whats a uri handler? A function that 
+    // gets called when a request comes in for a specific URL (URI) and http method
+    err = httpd_register_uri_handler(handle, &style_uri);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to register style handler: %s", esp_err_to_name(err));
-        httpd_stop(server);
-        server = nullptr;
-        return false;
+        APP_LOGE(kLog, "Failed to register style handler: %s", esp_err_to_name(err));
+        return err;
     }
 
     httpd_uri_t control_uri = {};
@@ -152,12 +145,22 @@ bool start() {
     control_uri.handler = control_get_handler;
     control_uri.user_ctx = nullptr;
 
-    err = httpd_register_uri_handler(server, &control_uri);
+    err = httpd_register_uri_handler(handle, &control_uri);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to register control handler: %s", esp_err_to_name(err));
-        httpd_stop(server);
-        server = nullptr;
-        return false;
+        APP_LOGE(kLog, "Failed to register control handler: %s", esp_err_to_name(err));
+        return err;
+    }
+
+    httpd_uri_t favicon_uri = {};
+    favicon_uri.uri = "/favicon.ico";
+    favicon_uri.method = HTTP_GET;
+    favicon_uri.handler = favicon_get_handler;
+    favicon_uri.user_ctx = nullptr;
+
+    err = httpd_register_uri_handler(handle, &favicon_uri);
+    if (err != ESP_OK) {
+        APP_LOGE(kLog, "Failed to register favicon handler: %s", esp_err_to_name(err));
+        return err;
     }
 
     httpd_uri_t color_uri = {};
@@ -166,29 +169,64 @@ bool start() {
     color_uri.handler = color_get_handler;
     color_uri.user_ctx = nullptr;
 
-    err = httpd_register_uri_handler(server, &color_uri);
+    err = httpd_register_uri_handler(handle, &color_uri);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to register color handler: %s", esp_err_to_name(err));
-        httpd_stop(server);
-        server = nullptr;
-        return false;
+        APP_LOGE(kLog, "Failed to register color handler: %s", esp_err_to_name(err));
+        return err;
     }
 
-    running = true;
-    ESP_LOGI(TAG, "HTTP server started on port %d", config.server_port);
-    return true;
+    return ESP_OK;
 }
 
+//Start the server if not already running and register URI handlers.
+bool start() {
+    if (running) {
+        return true;
+    }
+
+    if (HTTPSServer::start(&server)) {
+        https_enabled = true;
+        running = (register_handlers(server) == ESP_OK);
+        if (running) {
+            return true;
+        }
+
+        HTTPSServer::stop(server);
+        server = nullptr;
+        https_enabled = false;
+        APP_LOGW(kLog, "Failed to register HTTPS handlers, falling back to HTTP");
+    } else {
+        APP_LOGW(kLog, "Falling back to HTTP");
+    }
+
+    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    config.server_port = 80;
+    if (httpd_start(&server, &config) == ESP_OK) {
+        https_enabled = false;
+        running = (register_handlers(server) == ESP_OK);
+        APP_LOGI(kLog, "HTTP server started on port 80");
+        return running;
+    }
+
+    return false;
+}
+
+// Stop the Http server if already running.
 void stop() {
     if (!running) {
         return;
     }
 
-    ESP_LOGI(TAG, "Stopping HTTP server");
+    APP_LOGI(kLog, "Stopping HTTP server");
     if (server) {
-        httpd_stop(server);
+        if (https_enabled) {
+            HTTPSServer::stop(server);
+        } else {
+            httpd_stop(server);
+        }
         server = nullptr;
     }
+    https_enabled = false;
     running = false;
 }
 

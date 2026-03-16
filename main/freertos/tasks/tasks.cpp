@@ -10,12 +10,15 @@
 #include "freertos/tasks/wifi_task.hpp"
 #include "freertos/tasks/ethernet_task.hpp"
 #include "freertos/tasks/monitor_task.hpp"
+#include "logging/logger.hpp"
 
 static const char* MAIN_TAG = "Main";
 static const char* TAG = "Tasks";
 
 extern "C" void app_main(void)
 {
+    Logging::Logger::apply_levels();
+
     ESP_LOGI(MAIN_TAG, "========================================");
     ESP_LOGI(MAIN_TAG, "ESP32-S3 Application Starting");
     ESP_LOGI(MAIN_TAG, "========================================");
