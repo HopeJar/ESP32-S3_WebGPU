@@ -1,4 +1,4 @@
-# ESP32-S3_Mastery
+# ESP32-S3_webGPU
 This project is me learning the ESP32-S3 by building things the way I would want to see them in a real embedded product: clear structure, C++, Wi-Fi, HTTPS, and a web UI that talks to the board in a useful way.
 
 The fun part is the WebGPU front end. The ESP32-S3 is not running WebGPU itself; it serves a secure web app that runs in the browser and acts as a rich control and visualization surface for the device. That is useful because an embedded board can stay small, cheap, and focused on hardware control. While the browser handles the heavier graphics work, and Interactive UI. In practice, that means you can use an ESP32-S3 as a real networked device with a polished interface instead of being limited to serial logs, basic forms, or a separate native app.
