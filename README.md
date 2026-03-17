@@ -3,6 +3,8 @@ This project is me learning the ESP32-S3 by building things the way I would want
 
 The fun part is the WebGPU front end. The ESP32-S3 is not running WebGPU itself; it serves a secure web app that runs in the browser and acts as a rich control and visualization surface for the device. That is useful because an embedded board can stay small, cheap, and focused on hardware control, while the browser handles the heavier graphics work, interactive tooling, and cross-platform UI. In practice, that means you can use an ESP32-S3 as a real networked device with a polished interface instead of being limited to serial logs, basic forms, or a separate native app.
 
+The color of the Contrail matches the color of the LED on the ESP32-S3 development board.
+
 https://github.com/user-attachments/assets/f0bfb8a5-0dc4-4fcb-b1d9-cc6fe16c3165
 
 ## Build and flash (ESP-IDF + WSL)
