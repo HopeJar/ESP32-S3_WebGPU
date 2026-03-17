@@ -1,13 +1,15 @@
 /**
- * @file wifi_secrets.example.hpp
- * @brief Example WiFi credentials template
+ * @file wifi_secrets.hpp
+ * @brief Local WiFi credentials (do not commit)
+ * Place this file in `main/secrets/Hidden/wifi_secrets.hpp` and fill in your local WiFi credentials.
+ * This file is excluded from version control to prevent accidentally committing sensitive information.
  */
 
 #pragma once
 
 namespace WiFiSecrets {
 
-// Copy this file to wifi_secrets.hpp and update the values.
+// Fill these in with your local network credentials.
 constexpr char kWiFiSsid[] = "YOUR_WIFI_SSID";
 constexpr char kWiFiPassword[] = "YOUR_WIFI_PASSWORD";
 
